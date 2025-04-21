@@ -1,0 +1,17 @@
+{
+  "name": "code-lee",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "pnpm": "^8.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm -r run dev",
+    "build": "pnpm -r run build",
+    "start": "pnpm -r run start",
+    "install:all": "pnpm install"
+  }
+}
