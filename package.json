@@ -9,9 +9,7 @@
     "pnpm": "^8.0.0"
   },
   "scripts": {
-    "dev": "pnpm -r run dev",
-    "build": "pnpm -r run build",
-    "start": "pnpm -r run start",
-    "install:all": "pnpm install"
+    "web": "pnpm --filter code-lee-web",
+    "server": "pnpm --filter code-lee-server"
   }
 }

@@ -1,22 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { MoreHorizontal, ThumbsUp, ThumbsDown } from "lucide-react"
+import { useState } from "react";
+import { MoreHorizontal, ThumbsUp, ThumbsDown } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 interface CommentSectionProps {
-  problemId?: string
+  problemId?: string;
 }
 
 export function CommentSection({ problemId }: CommentSectionProps) {
-  const [newComment, setNewComment] = useState("")
+  const [newComment, setNewComment] = useState("");
 
   // 문제 ID에 따라 다른 댓글 목록을 보여주기 위한 목업 데이터
   const getComments = (id?: string) => {
@@ -58,7 +63,7 @@ export function CommentSection({ problemId }: CommentSectionProps) {
         dislikes: 0,
         isBestComment: false,
       },
-    ]
+    ];
 
     // 문제 ID에 따라 다른 댓글 목록 반환
     if (id === "2") {
@@ -79,14 +84,15 @@ export function CommentSection({ problemId }: CommentSectionProps) {
           id: 2,
           author: "정리액트",
           avatar: "/placeholder.svg",
-          content: "상태 관리 로직을 커스텀 훅으로 분리하면 컴포넌트가 더 깔끔해질 것 같습니다.",
+          content:
+            "상태 관리 로직을 커스텀 훅으로 분리하면 컴포넌트가 더 깔끔해질 것 같습니다.",
           timestamp: "20분 전",
           line: 28,
           likes: 4,
           dislikes: 1,
           isBestComment: false,
         },
-      ]
+      ];
     } else if (id === "3") {
       return [
         {
@@ -105,7 +111,8 @@ export function CommentSection({ problemId }: CommentSectionProps) {
           id: 2,
           author: "김노드",
           avatar: "/placeholder.svg",
-          content: "대용량 데이터를 처리할 때는 스트림을 사용하는 것이 메모리 효율성을 높일 수 있습니다.",
+          content:
+            "대용량 데이터를 처리할 때는 스트림을 사용하는 것이 메모리 효율성을 높일 수 있습니다.",
           timestamp: "1시간 전",
           line: 56,
           likes: 6,
@@ -116,20 +123,21 @@ export function CommentSection({ problemId }: CommentSectionProps) {
           id: 3,
           author: "이서버",
           avatar: "/placeholder.svg",
-          content: "Node.js의 메모리 누수를 디버깅하려면 heapdump를 사용해보는 것이 좋을 것 같습니다.",
+          content:
+            "Node.js의 메모리 누수를 디버깅하려면 heapdump를 사용해보는 것이 좋을 것 같습니다.",
           timestamp: "2시간 전",
           line: 78,
           likes: 5,
           dislikes: 0,
           isBestComment: false,
         },
-      ]
+      ];
     }
 
-    return defaultComments
-  }
+    return defaultComments;
+  };
 
-  const comments = getComments(problemId)
+  const comments = getComments(problemId);
 
   return (
     <div className="flex flex-col space-y-4">
@@ -140,13 +148,22 @@ export function CommentSection({ problemId }: CommentSectionProps) {
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={comment.avatar || "/placeholder.svg"} alt={comment.author} />
-                    <AvatarFallback>{comment.author.substring(0, 2)}</AvatarFallback>
+                    <AvatarImage
+                      src={comment.avatar || "/placeholder.svg"}
+                      alt={comment.author}
+                    />
+                    <AvatarFallback>
+                      {comment.author.substring(0, 2)}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center space-x-2">
                       <span className="font-medium">{comment.author}</span>
-                      {comment.isBestComment && <Badge className="bg-orange-500 text-xs">베스트 리뷰</Badge>}
+                      {comment.isBestComment && (
+                        <Badge className="bg-orange-500 text-xs">
+                          베스트 리뷰
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {comment.timestamp} • 라인 {comment.line}
@@ -195,9 +212,11 @@ export function CommentSection({ problemId }: CommentSectionProps) {
           className="min-h-[100px] resize-none"
         />
         <div className="flex justify-end">
-          <Button className="bg-primary hover:bg-primary/90">코멘트 작성</Button>
+          <Button className="bg-primary hover:bg-primary/90">
+            코멘트 작성
+          </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

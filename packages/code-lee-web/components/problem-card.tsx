@@ -1,13 +1,18 @@
-import Link from "next/link"
-import { Calendar, ChevronRight, Code2 } from "lucide-react"
+import Link from "next/link";
+import { Calendar, ChevronRight, Code2 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { formatDate, type Problem } from "@/lib/data"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { formatDate, type Problem } from "@/lib/data";
 
 interface ProblemCardProps {
-  problem: Problem
+  problem: Problem;
 }
 
 export function ProblemCard({ problem }: ProblemCardProps) {
@@ -16,14 +21,14 @@ export function ProblemCard({ problem }: ProblemCardProps) {
     beginner: "bg-green-500 hover:bg-green-600",
     intermediate: "bg-orange-500 hover:bg-orange-600",
     advanced: "bg-red-500 hover:bg-red-600",
-  }
+  };
 
   // 난이도 한글 표시
   const difficultyLabel = {
     beginner: "초급",
     intermediate: "중급",
     advanced: "고급",
-  }
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -34,7 +39,9 @@ export function ProblemCard({ problem }: ProblemCardProps) {
           </div>
           <span className="text-sm font-medium">코드 리뷰 문제</span>
         </div>
-        <Badge className={difficultyColor[problem.difficulty]}>{difficultyLabel[problem.difficulty]}</Badge>
+        <Badge className={difficultyColor[problem.difficulty]}>
+          {difficultyLabel[problem.difficulty]}
+        </Badge>
       </CardHeader>
       <CardContent>
         <h3 className="text-xl font-bold line-clamp-1">{problem.title}</h3>
@@ -59,5 +66,5 @@ export function ProblemCard({ problem }: ProblemCardProps) {
         </Link>
       </CardFooter>
     </Card>
-  )
+  );
 }

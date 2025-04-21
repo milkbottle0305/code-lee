@@ -1,26 +1,29 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface LineCommentFormProps {
-  lineNumber: number
-  onCancel: () => void
+  lineNumber: number;
+  onCancel: () => void;
 }
 
-export function LineCommentForm({ lineNumber, onCancel }: LineCommentFormProps) {
-  const [comment, setComment] = useState("")
+export function LineCommentForm({
+  lineNumber,
+  onCancel,
+}: LineCommentFormProps) {
+  const [comment, setComment] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // 여기에 코멘트 제출 로직 추가
-    console.log(`Line ${lineNumber} comment: ${comment}`)
-    onCancel()
-  }
+    console.log(`Line ${lineNumber} comment: ${comment}`);
+    onCancel();
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -40,5 +43,5 @@ export function LineCommentForm({ lineNumber, onCancel }: LineCommentFormProps) 
         </Button>
       </div>
     </form>
-  )
+  );
 }

@@ -29,7 +29,7 @@ export default function RegisterPage() {
     if (password !== confirmPassword) {
       toast({
         title: "비밀번호 불일치",
-        content: "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
+        description: "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
         variant: "destructive",
       });
       return;
@@ -43,20 +43,20 @@ export default function RegisterPage() {
       if (success) {
         toast({
           title: "회원가입 성공",
-          content: "환영합니다!",
+          description: "환영합니다!",
         });
         router.push("/");
       } else {
         toast({
           title: "회원가입 실패",
-          content: "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.",
+          description: "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
         title: "오류 발생",
-        content: "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.",
+        description: "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.",
         variant: "destructive",
       });
     } finally {

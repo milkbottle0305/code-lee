@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Search } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ProblemCard } from "@/components/problem-card"
-import { MobileFilters } from "@/components/mobile-filters"
-import { Pagination } from "@/components/pagination"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ProblemCard } from "@/components/problem-card";
+import { MobileFilters } from "@/components/mobile-filters";
+import { Pagination } from "@/components/pagination";
 import {
   mockProblems,
   difficulties,
@@ -18,103 +18,125 @@ import {
   type Difficulty,
   type TechStack,
   type Problem,
-} from "@/lib/data"
+} from "@/lib/data";
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | "all">("all")
-  const [selectedTechStack, setSelectedTechStack] = useState<TechStack | "all">("all")
-  const [sortType, setSortType] = useState("latest")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [filteredProblems, setFilteredProblems] = useState<Problem[]>(mockProblems)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<
+    Difficulty | "all"
+  >("all");
+  const [selectedTechStack, setSelectedTechStack] = useState<TechStack | "all">(
+    "all"
+  );
+  const [sortType, setSortType] = useState("latest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredProblems, setFilteredProblems] =
+    useState<Problem[]>(mockProblems);
 
-  const itemsPerPage = 9
+  const itemsPerPage = 9;
 
   // 필터링 및 정렬 로직
   useEffect(() => {
-    let result = [...mockProblems]
+    let result = [...mockProblems];
 
     // 검색어 필터링
     if (searchQuery) {
       result = result.filter(
         (problem) =>
           problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          problem.description.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+          problem.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
 
     // 난이도 필터링
     if (selectedDifficulty !== "all") {
-      result = result.filter((problem) => problem.difficulty === selectedDifficulty)
+      result = result.filter(
+        (problem) => problem.difficulty === selectedDifficulty
+      );
     }
 
     // 기술 스택 필터링
     if (selectedTechStack !== "all") {
-      result = result.filter((problem) => problem.techStacks.includes(selectedTechStack))
+      result = result.filter((problem) =>
+        problem.techStacks.includes(selectedTechStack)
+      );
     }
 
     // 정렬
     switch (sortType) {
       case "latest":
-        result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-        break
+        result.sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+        break;
       case "difficulty-asc":
         result.sort((a, b) => {
-          const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 }
-          return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
-        })
-        break
+          const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 };
+          return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+        });
+        break;
       case "difficulty-desc":
         result.sort((a, b) => {
-          const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 }
-          return difficultyOrder[b.difficulty] - difficultyOrder[a.difficulty]
-        })
-        break
+          const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 };
+          return difficultyOrder[b.difficulty] - difficultyOrder[a.difficulty];
+        });
+        break;
     }
 
-    setFilteredProblems(result)
-    setCurrentPage(1) // 필터 변경 시 첫 페이지로 이동
-  }, [searchQuery, selectedDifficulty, selectedTechStack, sortType])
+    setFilteredProblems(result);
+    setCurrentPage(1); // 필터 변경 시 첫 페이지로 이동
+  }, [searchQuery, selectedDifficulty, selectedTechStack, sortType]);
 
   // 페이지네이션 계산
-  const totalPages = Math.ceil(filteredProblems.length / itemsPerPage)
-  const currentProblems = filteredProblems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const totalPages = Math.ceil(filteredProblems.length / itemsPerPage);
+  const currentProblems = filteredProblems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   // 필터 초기화
   const resetFilters = () => {
-    setSearchQuery("")
-    setSelectedDifficulty("all")
-    setSelectedTechStack("all")
-    setSortType("latest")
-  }
+    setSearchQuery("");
+    setSelectedDifficulty("all");
+    setSelectedTechStack("all");
+    setSortType("latest");
+  };
 
   // 필터 적용 여부 확인
-  const isFiltered = selectedDifficulty !== "all" || selectedTechStack !== "all" || searchQuery !== ""
+  const isFiltered =
+    selectedDifficulty !== "all" ||
+    selectedTechStack !== "all" ||
+    searchQuery !== "";
 
   // 난이도 레이블 가져오기
   const getDifficultyLabel = (value: Difficulty | "all") => {
-    if (value === "all") return "모든 난이도"
-    return difficulties.find((d) => d.value === value)?.label || value
-  }
+    if (value === "all") return "모든 난이도";
+    return difficulties.find((d) => d.value === value)?.label || value;
+  };
 
   // 기술 스택 레이블 가져오기
   const getTechStackLabel = (value: TechStack | "all") => {
-    if (value === "all") return "모든 기술 스택"
-    return techStacks.find((t) => t.value === value)?.label || value
-  }
+    if (value === "all") return "모든 기술 스택";
+    return techStacks.find((t) => t.value === value)?.label || value;
+  };
 
   // 정렬 레이블 가져오기
   const getSortLabel = (value: string) => {
-    return sortOptions.find((s) => s.value === value)?.label || value
-  }
+    return sortOptions.find((s) => s.value === value)?.label || value;
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="flex flex-col space-y-6">
         <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary">코드 리뷰 문제</h1>
-            <p className="text-muted-foreground">코드 리뷰 연습을 위한 문제 목록입니다.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">
+              코드 리뷰 문제
+            </h1>
+            <p className="text-muted-foreground">
+              코드 리뷰 연습을 위한 문제 목록입니다.
+            </p>
           </div>
           <div className="flex items-center space-x-2">
             <div className="hidden md:block">
@@ -173,7 +195,11 @@ export default function HomePage() {
             className="rounded-md cursor-pointer"
             onClick={() =>
               setSortType(
-                sortType === "latest" ? "difficulty-asc" : sortType === "difficulty-asc" ? "difficulty-desc" : "latest",
+                sortType === "latest"
+                  ? "difficulty-asc"
+                  : sortType === "difficulty-asc"
+                    ? "difficulty-desc"
+                    : "latest"
               )
             }
           >
@@ -194,7 +220,9 @@ export default function HomePage() {
 
         {currentProblems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
-            <p className="text-lg text-muted-foreground">검색 결과가 없습니다.</p>
+            <p className="text-lg text-muted-foreground">
+              검색 결과가 없습니다.
+            </p>
             <Button variant="link" onClick={resetFilters} className="mt-2">
               필터 초기화
             </Button>
@@ -208,9 +236,13 @@ export default function HomePage() {
         )}
 
         {filteredProblems.length > 0 && (
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
     </div>
-  )
+  );
 }

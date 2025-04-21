@@ -1,24 +1,32 @@
-export type Difficulty = "beginner" | "intermediate" | "advanced"
-export type TechStack = "react" | "typescript" | "javascript" | "node" | "python" | "java" | "go" | "rust"
+export type Difficulty = "beginner" | "intermediate" | "advanced";
+export type TechStack =
+  | "react"
+  | "typescript"
+  | "javascript"
+  | "node"
+  | "python"
+  | "java"
+  | "go"
+  | "rust";
 
 export interface Problem {
-  id: string
-  title: string
-  description: string
-  difficulty: Difficulty
-  techStacks: TechStack[]
-  updatedAt: string
-  createdAt: string
-  authorId: string
-  authorName: string
-  reviewCount: number
+  id: string;
+  title: string;
+  description: string;
+  difficulty: Difficulty;
+  techStacks: TechStack[];
+  updatedAt: string;
+  createdAt: string;
+  authorId: string;
+  authorName: string;
+  reviewCount: number;
 }
 
 export const difficulties: { value: Difficulty; label: string }[] = [
   { value: "beginner", label: "초급" },
   { value: "intermediate", label: "중급" },
   { value: "advanced", label: "고급" },
-]
+];
 
 export const techStacks: { value: TechStack; label: string }[] = [
   { value: "react", label: "React" },
@@ -29,13 +37,13 @@ export const techStacks: { value: TechStack; label: string }[] = [
   { value: "java", label: "Java" },
   { value: "go", label: "Go" },
   { value: "rust", label: "Rust" },
-]
+];
 
 export const sortOptions = [
   { value: "latest", label: "최신순" },
   { value: "difficulty-asc", label: "난이도 오름차순" },
   { value: "difficulty-desc", label: "난이도 내림차순" },
-]
+];
 
 export const mockProblems: Problem[] = [
   {
@@ -194,17 +202,17 @@ export const mockProblems: Problem[] = [
     authorName: "오에러",
     reviewCount: 11,
   },
-]
+];
 
 export function getProblemById(id: string): Problem | undefined {
-  return mockProblems.find((problem) => problem.id === id)
+  return mockProblems.find((problem) => problem.id === id);
 }
 
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  })
+  });
 }

@@ -1,27 +1,27 @@
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { ArrowLeft, GitBranch, MessageSquare } from "lucide-react"
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, GitBranch, MessageSquare } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CodeDiffView } from "@/components/code-diff-view"
-import { CommitSelector } from "@/components/commit-selector"
-import { CommentSection } from "@/components/comment-section"
-import { getProblemById, formatDate } from "@/lib/data"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CodeDiffView } from "@/components/code-diff-view";
+import { CommitSelector } from "@/components/commit-selector";
+import { CommentSection } from "@/components/comment-section";
+import { getProblemById, formatDate } from "@/lib/data";
 
 interface ProblemPageProps {
   params: {
-    id: string
-  }
+    id: string;
+  };
 }
 
 export default function ProblemPage({ params }: ProblemPageProps) {
-  const problem = getProblemById(params.id)
+  const problem = getProblemById(params.id);
 
   if (!problem) {
-    notFound()
+    notFound();
   }
 
   // 난이도에 따른 배지 색상 설정
@@ -29,14 +29,14 @@ export default function ProblemPage({ params }: ProblemPageProps) {
     beginner: "bg-green-500",
     intermediate: "bg-orange-500",
     advanced: "bg-red-500",
-  }
+  };
 
   // 난이도 한글 표시
   const difficultyLabel = {
     beginner: "초급",
     intermediate: "중급",
     advanced: "고급",
-  }
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -48,11 +48,15 @@ export default function ProblemPage({ params }: ProblemPageProps) {
               돌아가기
             </Button>
           </Link>
-          <Badge className={difficultyColor[problem.difficulty]}>{difficultyLabel[problem.difficulty]}</Badge>
+          <Badge className={difficultyColor[problem.difficulty]}>
+            {difficultyLabel[problem.difficulty]}
+          </Badge>
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">{problem.title}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
+            {problem.title}
+          </h1>
           <div className="mt-2 flex flex-wrap gap-2">
             {problem.techStacks.map((tech) => (
               <Badge key={tech} variant="outline" className="bg-blue-50">
@@ -114,5 +118,5 @@ export default function ProblemPage({ params }: ProblemPageProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
