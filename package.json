@@ -1,0 +1,22 @@
+{
+  "name": "codelee",
+  "version": "1.0.0",
+  "description": "코드 리뷰 웹 애플리케이션",
+  "private": true,
+  "scripts": {
+    "web": "pnpm --filter codelee-web",
+    "server": "pnpm --filter codelee-server",
+    "common": "pnpm --filter codelee-common"
+  },
+  "keywords": [
+    "code",
+    "review",
+    "diff",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
