@@ -19,7 +19,27 @@ const replySchema = z.object({
 export function createCommentsRouter(prisma: PrismaClient) {
   const router = express.Router();
 
-  // Get comments for a file in a commit
+  /**
+   * @swagger
+   * /comments/file/{fileId}/commit/{commitId}:
+   *   get:
+   *     summary: 특정 파일과 커밋의 댓글 목록 조회
+   *     tags: [Comments]
+   *     parameters:
+   *       - in: path
+   *         name: fileId
+   *         required: true
+   *         schema:
+   *           type: string
+   *       - in: path
+   *         name: commitId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: 댓글 목록
+   */
   router.get("/file/:fileId/commit/:commitId", async (req, res) => {
     try {
       const { fileId, commitId } = req.params;
@@ -45,7 +65,38 @@ export function createCommentsRouter(prisma: PrismaClient) {
     }
   });
 
-  // Create a new comment
+  /**
+   * @swagger
+   * /comments:
+   *   post:
+   *     summary: 댓글 작성
+   *     tags: [Comments]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [content, lineNumber, fileId, commitId]
+   *             properties:
+   *               content:
+   *                 type: string
+   *               lineNumber:
+   *                 type: integer
+   *               fileId:
+   *                 type: string
+   *               commitId:
+   *                 type: string
+   *     responses:
+   *       201:
+   *         description: 댓글 작성 성공
+   *       400:
+   *         description: 잘못된 입력
+   *       401:
+   *         description: 인증 필요
+   */
   router.post("/", authenticate, async (req, res) => {
     try {
       const validation = commentSchema.safeParse(req.body);
@@ -70,7 +121,34 @@ export function createCommentsRouter(prisma: PrismaClient) {
     }
   });
 
-  // Create a reply to a comment
+  /**
+   * @swagger
+   * /comments/reply:
+   *   post:
+   *     summary: 댓글에 답글 작성
+   *     tags: [Comments]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [content, commentId]
+   *             properties:
+   *               content:
+   *                 type: string
+   *               commentId:
+   *                 type: string
+   *     responses:
+   *       201:
+   *         description: 답글 작성 성공
+   *       400:
+   *         description: 잘못된 입력
+   *       401:
+   *         description: 인증 필요
+   */
   router.post("/reply", authenticate, async (req, res) => {
     try {
       const validation = replySchema.safeParse(req.body);
@@ -95,7 +173,28 @@ export function createCommentsRouter(prisma: PrismaClient) {
     }
   });
 
-  // Like a comment
+  /**
+   * @swagger
+   * /comments/{id}/like:
+   *   post:
+   *     summary: 댓글 좋아요
+   *     tags: [Comments]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: 좋아요 성공
+   *       400:
+   *         description: 이미 좋아요를 누름
+   *       401:
+   *         description: 인증 필요
+   */
   router.post("/:id/like", authenticate, async (req, res) => {
     try {
       const { id } = req.params;

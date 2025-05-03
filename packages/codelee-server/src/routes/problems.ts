@@ -5,7 +5,37 @@ import { authenticate } from "../middleware/auth";
 export function createProblemsRouter(prisma: PrismaClient) {
   const router = express.Router();
 
-  // Get all problems with filtering
+  /**
+   * @swagger
+   * /problems:
+   *   get:
+   *     summary: 문제 목록 조회
+   *     tags: [Problems]
+   *     parameters:
+   *       - in: query
+   *         name: difficulty
+   *         schema:
+   *           type: string
+   *         description: 난이도 필터
+   *       - in: query
+   *         name: techStack
+   *         schema:
+   *           type: string
+   *         description: 기술스택 필터
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *         description: 페이지 번호
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *         description: 페이지당 개수
+   *     responses:
+   *       200:
+   *         description: 문제 목록
+   */
   router.get("/", async (req, res) => {
     try {
       const { difficulty, techStack, page = "1", limit = "10" } = req.query;
@@ -67,7 +97,29 @@ export function createProblemsRouter(prisma: PrismaClient) {
     }
   });
 
-  // Get problem by ID
+  /**
+   * @swagger
+   * /problems/{id}:
+   *   get:
+   *     summary: 문제 상세 조회
+   *     tags: [Problems]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: 문제 ID
+   *     responses:
+   *       200:
+   *         description: 문제 상세 정보
+   *       401:
+   *         description: 인증 필요
+   *       404:
+   *         description: 문제 없음
+   */
   router.get("/:id", authenticate, async (req, res) => {
     try {
       const { id } = req.params;

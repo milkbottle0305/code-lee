@@ -55,6 +55,7 @@ describe("Comments routes", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({ content: "", lineNumber: 1, fileId, commitId });
     expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("errors");
   });
 
   it("should return 401 for creating comment without token", async () => {
@@ -62,24 +63,32 @@ describe("Comments routes", () => {
       .post("/comments")
       .send({ content: "test", lineNumber: 1, fileId, commitId });
     expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/Unauthorized|인증/);
   });
 
-  it("should create a comment", async () => {
+  it("should create a comment and check fields", async () => {
     const res = await request(app)
       .post("/comments")
       .set("Authorization", `Bearer ${token}`)
       .send({ content: "댓글", lineNumber: 1, fileId, commitId });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
+    expect(res.body.content).toBe("댓글");
+    expect(res.body).toHaveProperty("author");
     commentId = res.body.id;
   });
 
-  it("should get comments for file/commit", async () => {
+  it("should get comments for file/commit and check structure", async () => {
     const res = await request(app).get(
       `/comments/file/${fileId}/commit/${commitId}`
     );
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+    if (res.body.length > 0) {
+      expect(res.body[0]).toHaveProperty("content");
+      expect(res.body[0]).toHaveProperty("author");
+      expect(res.body[0]).toHaveProperty("replies");
+    }
   });
 
   it("should return 400 for invalid reply creation", async () => {
@@ -88,6 +97,7 @@ describe("Comments routes", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({ content: "", commentId });
     expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("errors");
   });
 
   it("should return 401 for creating reply without token", async () => {
@@ -95,20 +105,24 @@ describe("Comments routes", () => {
       .post("/comments/reply")
       .send({ content: "답글", commentId });
     expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/Unauthorized|인증/);
   });
 
-  it("should create a reply", async () => {
+  it("should create a reply and check fields", async () => {
     const res = await request(app)
       .post("/comments/reply")
       .set("Authorization", `Bearer ${token}`)
       .send({ content: "답글", commentId });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
+    expect(res.body.content).toBe("답글");
+    expect(res.body).toHaveProperty("author");
   });
 
   it("should return 401 for liking comment without token", async () => {
     const res = await request(app).post(`/comments/${commentId}/like`);
     expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/Unauthorized|인증/);
   });
 
   it("should like a comment", async () => {
@@ -116,6 +130,7 @@ describe("Comments routes", () => {
       .post(`/comments/${commentId}/like`)
       .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(200);
+    expect(res.body.message).toMatch(/추가/);
   });
 
   it("should not like a comment twice", async () => {
@@ -123,5 +138,6 @@ describe("Comments routes", () => {
       .post(`/comments/${commentId}/like`)
       .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/이미/);
   });
 });

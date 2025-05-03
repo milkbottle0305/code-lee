@@ -26,6 +26,32 @@ if (!jwtSecret) {
 export function createAuthRouter(prisma: PrismaClient) {
   const router = express.Router();
 
+  /**
+   * @swagger
+   * /auth/register:
+   *   post:
+   *     summary: 회원가입
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [name, email, password]
+   *             properties:
+   *               name:
+   *                 type: string
+   *               email:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *     responses:
+   *       201:
+   *         description: 회원가입 성공
+   *       400:
+   *         description: 잘못된 입력 또는 중복 이메일
+   */
   // Register a new user
   router.post("/register", async (req, res) => {
     try {
@@ -80,6 +106,32 @@ export function createAuthRouter(prisma: PrismaClient) {
     }
   });
 
+  /**
+   * @swagger
+   * /auth/login:
+   *   post:
+   *     summary: 로그인
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [email, password]
+   *             properties:
+   *               email:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: 로그인 성공
+   *       400:
+   *         description: 잘못된 입력
+   *       401:
+   *         description: 인증 실패
+   */
   // Login user
   router.post("/login", async (req, res) => {
     try {

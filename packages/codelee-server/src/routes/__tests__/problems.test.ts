@@ -35,38 +35,48 @@ describe("Problems routes", () => {
     problemId = problem.id;
   });
 
-  it("should get problems list", async () => {
+  it("should get problems list and check structure", async () => {
     const res = await request(app).get("/problems");
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("problems");
     expect(Array.isArray(res.body.problems)).toBe(true);
     expect(res.body.pagination).toHaveProperty("total");
+    expect(res.body.problems[0]).toHaveProperty("id");
+    expect(res.body.problems[0]).toHaveProperty("title");
   });
 
   it("should filter problems by difficulty", async () => {
     const res = await request(app).get("/problems?difficulty=easy");
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.problems)).toBe(true);
+    res.body.problems.forEach((p: any) => {
+      expect(p.difficulty).toBe("easy");
+    });
   });
 
   it("should paginate problems", async () => {
     const res = await request(app).get("/problems?page=1&limit=1");
     expect(res.status).toBe(200);
     expect(res.body.pagination.limit).toBe(1);
+    expect(res.body.problems.length).toBeLessThanOrEqual(1);
   });
 
   it("should return 401 for detail without token", async () => {
     const res = await request(app).get(`/problems/${problemId}`);
     expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/인증/);
   });
 
-  it("should get problem detail with token", async () => {
+  it("should get problem detail with token and check fields", async () => {
     const res = await request(app)
       .get(`/problems/${problemId}`)
       .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("id");
     expect(res.body.id).toBe(problemId);
+    expect(res.body).toHaveProperty("techStacks");
+    expect(Array.isArray(res.body.techStacks)).toBe(true);
+    expect(res.body).toHaveProperty("commits");
   });
 
   it("should return 404 for not found problem", async () => {
@@ -74,5 +84,6 @@ describe("Problems routes", () => {
       .get(`/problems/00000000-0000-0000-0000-000000000000`)
       .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(404);
+    expect(res.body.message).toMatch(/찾을 수 없습니다/);
   });
 });

@@ -5,6 +5,8 @@ import { createAuthRouter } from "./routes/auth";
 import { createProblemsRouter } from "./routes/problems";
 import { createCommentsRouter } from "./routes/comments";
 import { createUsersRouter } from "./routes/users";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,6 +20,7 @@ app.use("/api/auth", createAuthRouter(prisma));
 app.use("/api/problems", createProblemsRouter(prisma));
 app.use("/api/comments", createCommentsRouter(prisma));
 app.use("/api/users", createUsersRouter(prisma));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Health check
 app.get("/health", (req, res) => {

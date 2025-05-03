@@ -15,7 +15,6 @@ describe("Auth routes", () => {
   let token: string;
 
   beforeAll(async () => {
-    // 테스트용 이메일
     email = `test${Date.now()}@example.com`;
   });
 
@@ -24,15 +23,19 @@ describe("Auth routes", () => {
       .post("/auth/register")
       .send({ email: "invalid", password: "123" });
     expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("errors");
   });
 
-  it("should register a user", async () => {
+  it("should register a user and return correct user data", async () => {
     const res = await request(app)
       .post("/auth/register")
       .send({ email, password, name });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("token");
     expect(res.body.user.email).toBe(email);
+    expect(res.body.user.name).toBe(name);
+    expect(res.body.user).toHaveProperty("id");
+    expect(res.body.user).not.toHaveProperty("password");
     token = res.body.token;
   });
 
@@ -49,14 +52,17 @@ describe("Auth routes", () => {
       .post("/auth/login")
       .send({ email: "invalid" });
     expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("errors");
   });
 
-  it("should login with correct credentials", async () => {
+  it("should login with correct credentials and return user info", async () => {
     const res = await request(app)
       .post("/auth/login")
       .send({ email, password });
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("token");
+    expect(res.body.user.email).toBe(email);
+    expect(res.body.user).not.toHaveProperty("password");
   });
 
   it("should not login with wrong password", async () => {
@@ -64,6 +70,7 @@ describe("Auth routes", () => {
       .post("/auth/login")
       .send({ email, password: "wrongpass" });
     expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/이메일 또는 비밀번호/);
   });
 
   it("should not login with non-existent email", async () => {
@@ -71,10 +78,10 @@ describe("Auth routes", () => {
       .post("/auth/login")
       .send({ email: "notfound@example.com", password: "wrongpass" });
     expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/이메일 또는 비밀번호/);
   });
 
   afterAll(async () => {
-    // 테스트 유저 삭제
     await prisma.user.deleteMany({ where: { email } });
   });
 });

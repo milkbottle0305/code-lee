@@ -5,7 +5,20 @@ import { authenticate } from "../middleware/auth";
 export function createUsersRouter(prisma: PrismaClient) {
   const router = express.Router();
 
-  // Get current user profile
+  /**
+   * @swagger
+   * /users/me:
+   *   get:
+   *     summary: 내 프로필 조회
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: 내 프로필 정보
+   *       401:
+   *         description: 인증 필요
+   */
   router.get("/me", authenticate, async (req, res) => {
     try {
       if (!req.user || !req.user.id) {
@@ -28,7 +41,31 @@ export function createUsersRouter(prisma: PrismaClient) {
     }
   });
 
-  // Get user's comments
+  /**
+   * @swagger
+   * /users/me/comments:
+   *   get:
+   *     summary: 내가 작성한 댓글 목록 조회
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *         description: 페이지 번호
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *         description: 페이지당 개수
+   *     responses:
+   *       200:
+   *         description: 내 댓글 목록
+   *       401:
+   *         description: 인증 필요
+   */
   router.get("/me/comments", authenticate, async (req, res) => {
     try {
       if (!req.user || !req.user.id) {
