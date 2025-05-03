@@ -54,9 +54,16 @@ export default function SignupPage() {
         router.push("/");
       }
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message || "회원가입 중 오류가 발생했습니다."
-      );
+      if (err?.response && typeof err.response.json === "function") {
+        try {
+          const data = await err.response.json();
+          setError(data?.message || "회원가입 중 오류가 발생했습니다.");
+        } catch {
+          setError("회원가입 중 오류가 발생했습니다.");
+        }
+      } else {
+        setError(err?.message || "회원가입 중 오류가 발생했습니다.");
+      }
     }
   };
 

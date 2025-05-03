@@ -1,18 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, X } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
+import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
-  // Mock authentication state - in a real app, this would come from an auth context
-  const isLoggedIn = false
+  // 로그인 상태를 localStorage의 토큰으로 판단
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false); // 인증 체크 완료 여부
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsLoggedIn(!!localStorage.getItem("token"));
+      setIsAuthChecked(true); // 인증 체크 완료
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
@@ -24,56 +37,83 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href="/problems"
-            className={`text-sm font-medium ${pathname === "/problems" ? "text-blue-900 dark:text-orange-400" : "text-gray-600 dark:text-gray-300"}`}
-          >
-            문제 목록
-          </Link>
-          {isLoggedIn && (
+        {isAuthChecked && (
+          <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="/my-reviews"
-              className={`text-sm font-medium ${pathname === "/my-reviews" ? "text-blue-900 dark:text-orange-400" : "text-gray-600 dark:text-gray-300"}`}
+              href="/problems"
+              className={`text-sm font-medium ${
+                pathname === "/problems"
+                  ? "text-blue-900 dark:text-orange-400"
+                  : "text-gray-600 dark:text-gray-300"
+              }`}
             >
-              내 리뷰
+              문제 목록
             </Link>
-          )}
-          <div className="flex items-center gap-2">
-            <ModeToggle />
-            {isLoggedIn ? (
-              <Button variant="outline" size="sm">
-                로그아웃
-              </Button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/login">로그인</Link>
-                </Button>
-                <Button size="sm" className="bg-blue-900 hover:bg-blue-800 text-white" asChild>
-                  <Link href="/signup">회원가입</Link>
-                </Button>
-              </div>
+            {isLoggedIn && (
+              <Link
+                href="/my-reviews"
+                className={`text-sm font-medium ${
+                  pathname === "/my-reviews"
+                    ? "text-blue-900 dark:text-orange-400"
+                    : "text-gray-600 dark:text-gray-300"
+                }`}
+              >
+                내 리뷰
+              </Link>
             )}
-          </div>
-        </nav>
+            <div className="flex items-center gap-2">
+              <ModeToggle />
+              {isLoggedIn ? (
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  로그아웃
+                </Button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/login">로그인</Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-blue-900 hover:bg-blue-800 text-white"
+                    asChild
+                  >
+                    <Link href="/signup">회원가입</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </nav>
+        )}
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-2 md:hidden">
           <ModeToggle />
-          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="메뉴 열기">
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="메뉴 열기"
+          >
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
 
       {/* Mobile Navigation */}
-      {isMenuOpen && (
+      {isMenuOpen && isAuthChecked && (
         <div className="md:hidden bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
             <Link
               href="/problems"
-              className={`text-sm font-medium ${pathname === "/problems" ? "text-blue-900 dark:text-orange-400" : "text-gray-600 dark:text-gray-300"}`}
+              className={`text-sm font-medium ${
+                pathname === "/problems"
+                  ? "text-blue-900 dark:text-orange-400"
+                  : "text-gray-600 dark:text-gray-300"
+              }`}
               onClick={() => setIsMenuOpen(false)}
             >
               문제 목록
@@ -81,19 +121,35 @@ export default function Header() {
             {isLoggedIn && (
               <Link
                 href="/my-reviews"
-                className={`text-sm font-medium ${pathname === "/my-reviews" ? "text-blue-900 dark:text-orange-400" : "text-gray-600 dark:text-gray-300"}`}
+                className={`text-sm font-medium ${
+                  pathname === "/my-reviews"
+                    ? "text-blue-900 dark:text-orange-400"
+                    : "text-gray-600 dark:text-gray-300"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 내 리뷰
               </Link>
             )}
             {isLoggedIn ? (
-              <Button variant="outline" size="sm" onClick={() => setIsMenuOpen(false)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
+              >
                 로그아웃
               </Button>
             ) : (
               <div className="flex flex-col gap-2">
-                <Button variant="outline" size="sm" asChild onClick={() => setIsMenuOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   <Link href="/login">로그인</Link>
                 </Button>
                 <Button
@@ -110,5 +166,5 @@ export default function Header() {
         </div>
       )}
     </header>
-  )
+  );
 }
