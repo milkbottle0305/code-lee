@@ -9,7 +9,7 @@
     "common": "pnpm --filter codelee-common",
     "dev:server": "pnpm --filter codelee-server dev",
     "dev:web": "pnpm --filter codelee-web dev",
-    "dev": "pnpm -r run dev",
+    "dev": "pnpm --filter codelee-web --filter codelee-server dev",
     "build:server": "pnpm --filter codelee-server build",
     "build:web": "pnpm --filter codelee-web build",
     "build": "pnpm -r run build",
