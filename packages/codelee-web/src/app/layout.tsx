@@ -2,6 +2,7 @@ import type React from "react";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
+import QueryClientProviderWrapper from "@/providers/query-client-provider";
 
 import "../styles/globals.css";
 
@@ -20,17 +21,19 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
-            {children}
-          </main>
-        </ThemeProvider>
+        <QueryClientProviderWrapper>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+              {children}
+            </main>
+          </ThemeProvider>
+        </QueryClientProviderWrapper>
       </body>
     </html>
   );

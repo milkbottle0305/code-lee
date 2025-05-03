@@ -6,7 +6,16 @@
   "scripts": {
     "web": "pnpm --filter codelee-web",
     "server": "pnpm --filter codelee-server",
-    "common": "pnpm --filter codelee-common"
+    "common": "pnpm --filter codelee-common",
+    "dev:server": "pnpm --filter codelee-server dev",
+    "dev:web": "pnpm --filter codelee-web dev",
+    "dev": "pnpm -r run dev",
+    "build:server": "pnpm --filter codelee-server build",
+    "build:web": "pnpm --filter codelee-web build",
+    "build": "pnpm -r run build",
+    "start:server": "pnpm --filter codelee-server start:prod",
+    "start:web": "pnpm --filter codelee-web start:prod",
+    "start": "pnpm -r run start:prod"
   },
   "keywords": [
     "code",

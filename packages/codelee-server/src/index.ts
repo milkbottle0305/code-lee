@@ -7,6 +7,15 @@ import { createCommentsRouter } from "./routes/comments";
 import { createUsersRouter } from "./routes/users";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
+import dotenv from "dotenv";
+
+// NODE_ENV에 따라 .env 파일 분기
+dotenv.config({
+  path:
+    process.env.NODE_ENV === "production"
+      ? "./.env.production"
+      : "./.env.development",
+});
 
 const app = express();
 const PORT = process.env.PORT || 3001;

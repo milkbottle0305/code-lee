@@ -16,6 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useLogin } from "@/hooks/api/useAuth";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,16 +25,29 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const loginMutation = useLogin();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would send the login data to the server
-    console.log("Login form submitted:", formData);
+    setError(null);
+    try {
+      const res = await loginMutation.mutateAsync(formData);
+      if (res.token) {
+        localStorage.setItem("token", res.token);
+        router.push("/");
+      }
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message || "로그인 중 오류가 발생했습니다."
+      );
+    }
   };
 
   return (
@@ -90,11 +105,15 @@ export default function LoginPage() {
                 </Button>
               </div>
             </div>
+            {error && (
+              <div className="text-red-500 text-sm text-center">{error}</div>
+            )}
             <Button
               type="submit"
               className="w-full bg-blue-900 hover:bg-blue-800 text-white"
+              disabled={loginMutation.isPending}
             >
-              로그인
+              {loginMutation.isPending ? "로그인 중..." : "로그인"}
             </Button>
           </form>
         </CardContent>
