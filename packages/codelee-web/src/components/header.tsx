@@ -49,18 +49,6 @@ export default function Header() {
             >
               문제 목록
             </Link>
-            {isLoggedIn && (
-              <Link
-                href="/my-reviews"
-                className={`text-sm font-medium ${
-                  pathname === "/my-reviews"
-                    ? "text-blue-900 dark:text-orange-400"
-                    : "text-gray-600 dark:text-gray-300"
-                }`}
-              >
-                내 리뷰
-              </Link>
-            )}
             <div className="flex items-center gap-2">
               <ModeToggle />
               {isLoggedIn ? (
@@ -118,19 +106,6 @@ export default function Header() {
             >
               문제 목록
             </Link>
-            {isLoggedIn && (
-              <Link
-                href="/my-reviews"
-                className={`text-sm font-medium ${
-                  pathname === "/my-reviews"
-                    ? "text-blue-900 dark:text-orange-400"
-                    : "text-gray-600 dark:text-gray-300"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                내 리뷰
-              </Link>
-            )}
             {isLoggedIn ? (
               <Button
                 variant="outline"
