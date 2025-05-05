@@ -80,7 +80,7 @@ describe("Comments routes", () => {
 
   it("should get comments for file/commit and check structure", async () => {
     const res = await request(app).get(
-      `/comments/file/${fileId}/commit/${commitId}`
+      `/comments?fileId=${fileId}&commitId=${commitId}`
     );
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);

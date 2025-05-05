@@ -1,125 +1,208 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronDown, ThumbsUp, ThumbsDown, Send } from "lucide-react";
+import { ChevronDown, ThumbsUp, Send } from "lucide-react";
 import CodeDiffViewer from "@/components/code-diff-viewer";
 import FileTree from "@/components/file-tree";
 import CommitSelector from "@/components/commit-selector";
 
-// Mock problem data
-const problem = {
-  id: 1,
-  title: "React 컴포넌트 최적화하기",
-  difficulty: "중급",
-  techStacks: ["React", "JavaScript"],
-  description:
-    "이 문제는 React 컴포넌트의 성능을 최적화하는 방법을 연습하는 문제입니다. 불필요한 렌더링을 줄이고, 메모이제이션을 활용하여 성능을 개선해보세요.",
-  updatedAt: "2023-05-01",
-};
-
-// Mock commits data
-const commits = [
-  { id: "c1", message: "Initial commit", date: "2023-04-28" },
-  { id: "c2", message: "Add memoization", date: "2023-04-29" },
-  { id: "c3", message: "Optimize rendering", date: "2023-04-30" },
-];
-
-// Mock files data
-const files = [
-  { id: "f1", name: "App.js", path: "src/App.js" },
-  { id: "f2", name: "Component.js", path: "src/components/Component.js" },
-  { id: "f3", name: "utils.js", path: "src/utils/utils.js" },
-];
-
-// Mock diff data
-const diffContent = `
-@@ -1,7 +1,7 @@
- import React from 'react';
- 
--function ExpensiveComponent({ data }) {
-+function ExpensiveComponent({ data }) {
-   // Some expensive calculation
-   const processedData = data.map(item => {
-     return {
-@@ -10,10 +10,10 @@
-     };
-   });
- 
-   return (
-     <div>
--      {processedData.map(item => (
--        <div key={item.id}>{item.value}</div>
-+      {processedData.map(item => (
-+        <div key={item.id}>{item.value}</div>
-       ))}
-     </div>
-   );
- }
- 
--export default ExpensiveComponent;
-+export default React.memo(ExpensiveComponent);
-`;
-
-// Mock comments data
-const comments = [
-  {
-    id: 1,
-    lineNumber: 13,
-    user: { name: "김개발", avatar: "/placeholder.svg?height=40&width=40" },
-    content:
-      "여기서 React.memo를 사용하면 불필요한 리렌더링을 방지할 수 있습니다.",
-    timestamp: "2023-05-01 14:30",
-    likes: 5,
-    dislikes: 1,
-    replies: [
-      {
-        id: 101,
-        user: { name: "이코딩", avatar: "/placeholder.svg?height=40&width=40" },
-        content:
-          "맞습니다. props가 변경되지 않으면 리렌더링을 건너뛰게 됩니다.",
-        timestamp: "2023-05-01 15:45",
-        likes: 3,
-        dislikes: 0,
-      },
-    ],
-  },
-  {
-    id: 2,
-    lineNumber: 5,
-    user: { name: "박리액트", avatar: "/placeholder.svg?height=40&width=40" },
-    content: "이 부분에서 useMemo를 사용하면 계산 비용을 줄일 수 있습니다.",
-    timestamp: "2023-05-02 09:15",
-    likes: 7,
-    dislikes: 2,
-    replies: [],
-  },
-];
+// 커스텀 훅 import
+import { useProblemDetail } from "@/hooks/api/useProblems";
+import {
+  useComments,
+  useCreateComment,
+  useReplyToComment,
+  useLikeComment,
+} from "@/hooks/api/useComments";
 
 export default function ProblemDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const [selectedCommit, setSelectedCommit] = useState(commits[2]);
-  const [selectedFile, setSelectedFile] = useState(files[1]);
+  const router = useRouter();
+
+  useEffect(() => {
+    // 클라이언트에서 localStorage의 토큰 확인
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      router.replace("/login");
+    }
+  }, [router]);
+
+  // 문제 상세정보 API 연동
+  const { data: problem, isLoading: problemLoading } = useProblemDetail(
+    params.id
+  );
+
+  // 커밋/파일 선택 상태
+  const [selectedCommit, setSelectedCommit] = useState<any>(null);
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+
+  // 모바일 파일 선택 드롭다운 상태
+  const [mobileFileDropdownOpen, setMobileFileDropdownOpen] = useState(false);
+
+  // 커밋/파일 동기화: 문제 데이터가 로드되면 첫 커밋/파일 자동 선택
+  useEffect(() => {
+    if (problem && problem.commits && problem.commits.length > 0) {
+      // 커밋이 바뀌면 첫 파일 자동 선택
+      if (
+        !selectedCommit ||
+        !problem.commits.find((c: any) => c.id === selectedCommit.id)
+      ) {
+        setSelectedCommit(problem.commits[0]);
+        setSelectedFile(problem.commits[0].files[0] ?? null);
+      }
+    }
+  }, [problem]);
+
+  // 커밋이 바뀌면 파일도 첫 파일로 자동 선택
+  useEffect(() => {
+    if (
+      selectedCommit &&
+      selectedCommit.files &&
+      selectedCommit.files.length > 0
+    ) {
+      if (
+        !selectedFile ||
+        !selectedCommit.files.find((f: any) => f.id === selectedFile.id)
+      ) {
+        setSelectedFile(selectedCommit.files[0]);
+      }
+    }
+  }, [selectedCommit]);
+
+  // 댓글 목록 API 연동 (커밋/파일이 선택되어야 호출)
+  const { data: commentsData, isLoading: commentsLoading } = useComments(
+    selectedFile?.id ?? "",
+    selectedCommit?.id ?? ""
+  );
+
+  // 댓글 작성, 답글 작성, 좋아요 훅
+  const createComment = useCreateComment();
+  const replyToComment = useReplyToComment();
+  const likeComment = useLikeComment();
+
+  // 댓글 입력 상태
   const [commentInput, setCommentInput] = useState("");
   const [activeCommentLine, setActiveCommentLine] = useState<number | null>(
     null
   );
 
+  // 답글 입력 상태 (댓글 id별로 관리)
+  const [replyInputs, setReplyInputs] = useState<{
+    [commentId: string]: string;
+  }>({});
+
+  // 댓글 등록 핸들러
   const handleCommentSubmit = () => {
-    if (!commentInput.trim() || activeCommentLine === null) return;
-    // In a real app, this would send the comment to the server
-    alert(
-      `코멘트가 제출되었습니다: 라인 ${activeCommentLine}, 내용: ${commentInput}`
+    if (
+      !commentInput.trim() ||
+      activeCommentLine === null ||
+      !selectedFile ||
+      !selectedCommit
+    )
+      return;
+    createComment.mutate(
+      {
+        fileId: selectedFile.id,
+        commitId: selectedCommit.id,
+        lineNumber: activeCommentLine,
+        content: commentInput,
+      },
+      {
+        onSuccess: () => {
+          setCommentInput("");
+          setActiveCommentLine(null);
+        },
+      }
     );
-    setCommentInput("");
-    setActiveCommentLine(null);
+  };
+
+  // 답글 등록 핸들러
+  const handleReplySubmit = (commentId: string) => {
+    const reply = replyInputs[commentId];
+    if (!reply?.trim()) return;
+    replyToComment.mutate(
+      {
+        commentId,
+        content: reply,
+      },
+      {
+        onSuccess: () => {
+          setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
+        },
+      }
+    );
+  };
+
+  // 좋아요 핸들러
+  const handleLike = (commentId: string) => {
+    likeComment.mutate(commentId);
+  };
+
+  // 로딩 처리
+  if (problemLoading || commentsLoading) {
+    return <div>로딩중...</div>;
+  }
+  if (!problem) {
+    return <div>문제를 찾을 수 없습니다.</div>;
+  }
+
+  // 커밋/파일/코드 diff/댓글 데이터는 실제 API 구조에 맞게 매핑 필요
+  const commits = (problem.commits ?? []).map((commit: any) => ({
+    ...commit,
+    date:
+      typeof commit.date === "string"
+        ? commit.date
+        : commit.date?.toISOString?.() ?? "",
+  }));
+
+  // 현재 선택된 커밋의 파일 목록
+  const files = selectedCommit?.files ?? [];
+
+  // 현재 선택된 파일의 diffContent
+  const diffContent = selectedFile?.diff ?? "";
+
+  // commentsData는 배열이므로 타입 변환 매핑 추가
+  const comments = (commentsData ?? []).map((comment: any) => ({
+    id: comment.id,
+    lineNumber: comment.lineNumber,
+    user: {
+      name: comment.author?.name ?? "",
+      avatar: comment.author?.avatar ?? "/placeholder.svg",
+    },
+    content: comment.content,
+    timestamp: comment.createdAt,
+    likes: comment.likes ?? 0,
+    dislikes: comment.dislikes ?? 0,
+    replies: (comment.replies ?? []).map((reply: any) => ({
+      id: reply.id,
+      content: reply.content,
+      commentId: reply.commentId,
+      user: {
+        name: reply.author?.name ?? "",
+        avatar: reply.author?.avatar ?? "/placeholder.svg",
+      },
+      timestamp: reply.createdAt,
+      likes: reply.likes ?? 0,
+      dislikes: reply.dislikes ?? 0,
+    })),
+  }));
+
+  // 날짜 포맷 함수
+  const formatDate = (date: Date | string) => {
+    if (!date) return "";
+    if (typeof date === "string") return date.slice(0, 10);
+    return date.toISOString().slice(0, 10);
   };
 
   return (
@@ -134,13 +217,13 @@ export default function ProblemDetailPage({
           >
             {problem.difficulty}
           </Badge>
-          {problem.techStacks.map((tech) => (
+          {problem.techStacks?.map((tech) => (
             <Badge
-              key={tech}
+              key={tech.id}
               variant="outline"
               className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800"
             >
-              {tech}
+              {tech.name}
             </Badge>
           ))}
         </div>
@@ -148,7 +231,7 @@ export default function ProblemDetailPage({
           {problem.description}
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          최근 업데이트: {problem.updatedAt}
+          최근 업데이트: {formatDate(problem.updatedAt)}
         </p>
       </div>
 
@@ -156,7 +239,10 @@ export default function ProblemDetailPage({
       <CommitSelector
         commits={commits}
         selectedCommit={selectedCommit}
-        onSelectCommit={setSelectedCommit}
+        onSelectCommit={(commit: any) => {
+          setSelectedCommit(commit);
+          setSelectedFile(commit.files[0] ?? null);
+        }}
       />
 
       {/* Main Content */}
@@ -181,14 +267,33 @@ export default function ProblemDetailPage({
             </TabsList>
             <TabsContent value="code" className="mt-0">
               {/* Mobile File Selector */}
-              <div className="lg:hidden mb-4">
+              <div className="lg:hidden mb-4 relative">
                 <Button
                   variant="outline"
                   className="w-full flex justify-between items-center"
+                  onClick={() => setMobileFileDropdownOpen((v) => !v)}
                 >
-                  {selectedFile.name}
+                  {selectedFile?.name || "파일 선택"}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
+                {mobileFileDropdownOpen && (
+                  <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border rounded shadow mt-1">
+                    {files.map((file: any) => (
+                      <div
+                        key={file.id}
+                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                          selectedFile?.id === file.id ? "font-bold" : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedFile(file);
+                          setMobileFileDropdownOpen(false);
+                        }}
+                      >
+                        {file.name}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-800">
@@ -216,6 +321,7 @@ export default function ProblemDetailPage({
                     <Button
                       onClick={handleCommentSubmit}
                       className="bg-blue-900 hover:bg-blue-800 text-white"
+                      disabled={createComment.isPending}
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -225,7 +331,7 @@ export default function ProblemDetailPage({
             </TabsContent>
             <TabsContent value="comments" className="mt-0">
               <ScrollArea className="h-[600px] rounded-lg border p-4">
-                {comments.map((comment) => (
+                {comments.map((comment: any) => (
                   <div
                     key={comment.id}
                     className="mb-6 pb-6 border-b last:border-0"
@@ -241,7 +347,8 @@ export default function ProblemDetailPage({
                           <div>
                             <p className="font-medium">{comment.user.name}</p>
                             <p className="text-xs text-gray-500">
-                              라인 {comment.lineNumber} • {comment.timestamp}
+                              라인 {comment.lineNumber} •{" "}
+                              {formatDate(comment.timestamp)}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
@@ -249,17 +356,11 @@ export default function ProblemDetailPage({
                               variant="ghost"
                               size="sm"
                               className="h-8 px-2"
+                              onClick={() => handleLike(comment.id)}
+                              disabled={likeComment.isPending}
                             >
                               <ThumbsUp className="h-4 w-4 mr-1" />
                               {comment.likes}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-2"
-                            >
-                              <ThumbsDown className="h-4 w-4 mr-1" />
-                              {comment.dislikes}
                             </Button>
                           </div>
                         </div>
@@ -268,7 +369,7 @@ export default function ProblemDetailPage({
                         {/* Replies */}
                         {comment.replies.length > 0 && (
                           <div className="mt-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
-                            {comment.replies.map((reply) => (
+                            {comment.replies.map((reply: any) => (
                               <div key={reply.id} className="mb-3 last:mb-0">
                                 <div className="flex items-start gap-3">
                                   <img
@@ -285,7 +386,7 @@ export default function ProblemDetailPage({
                                           {reply.user.name}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                          {reply.timestamp}
+                                          {formatDate(reply.timestamp)}
                                         </p>
                                       </div>
                                       <div className="flex items-center gap-2">
@@ -293,17 +394,11 @@ export default function ProblemDetailPage({
                                           variant="ghost"
                                           size="sm"
                                           className="h-6 px-2"
+                                          onClick={() => handleLike(reply.id)}
+                                          disabled={likeComment.isPending}
                                         >
                                           <ThumbsUp className="h-3 w-3 mr-1" />
                                           {reply.likes}
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-6 px-2"
-                                        >
-                                          <ThumbsDown className="h-3 w-3 mr-1" />
-                                          {reply.dislikes}
                                         </Button>
                                       </div>
                                     </div>
@@ -320,10 +415,19 @@ export default function ProblemDetailPage({
                           <Textarea
                             placeholder="답글 작성..."
                             className="flex-1 min-h-[40px] text-sm"
+                            value={replyInputs[comment.id] || ""}
+                            onChange={(e) =>
+                              setReplyInputs((prev) => ({
+                                ...prev,
+                                [comment.id]: e.target.value,
+                              }))
+                            }
                           />
                           <Button
                             size="sm"
                             className="bg-blue-900 hover:bg-blue-800 text-white"
+                            onClick={() => handleReplySubmit(comment.id)}
+                            disabled={replyToComment.isPending}
                           >
                             <Send className="h-4 w-4" />
                           </Button>

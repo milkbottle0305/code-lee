@@ -1,20 +1,42 @@
-"use client"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { GitCommit } from "lucide-react"
+"use client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GitCommit } from "lucide-react";
+import React from "react";
 
 interface Commit {
-  id: string
-  message: string
-  date: string
+  id: string;
+  message: string;
+  date: string;
 }
 
 interface CommitSelectorProps {
-  commits: Commit[]
-  selectedCommit: Commit
-  onSelectCommit: (commit: Commit) => void
+  commits: Commit[];
+  selectedCommit: Commit;
+  onSelectCommit: (commit: Commit) => void;
 }
 
-export default function CommitSelector({ commits, selectedCommit, onSelectCommit }: CommitSelectorProps) {
+export default function CommitSelector({
+  commits,
+  selectedCommit,
+  onSelectCommit,
+}: CommitSelectorProps) {
+  // selectedCommit이 없으면 가장 최근 커밋(첫 번째)을 기본값으로 설정
+  const effectiveSelectedCommit = selectedCommit ?? commits[0];
+
+  // selectedCommit이 없고 커밋이 존재하면 최초 렌더링 시 자동 선택
+  React.useEffect(() => {
+    if (!selectedCommit && commits.length > 0) {
+      onSelectCommit(commits[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCommit, commits]);
+
   return (
     <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
       <div className="flex items-center gap-2">
@@ -22,10 +44,10 @@ export default function CommitSelector({ commits, selectedCommit, onSelectCommit
         <span className="font-medium">커밋 선택:</span>
       </div>
       <Select
-        value={selectedCommit.id}
+        value={effectiveSelectedCommit?.id ?? ""}
         onValueChange={(value) => {
-          const commit = commits.find((c) => c.id === value)
-          if (commit) onSelectCommit(commit)
+          const commit = commits.find((c) => c.id === value);
+          if (commit) onSelectCommit(commit);
         }}
       >
         <SelectTrigger className="w-full sm:w-[300px]">
@@ -43,5 +65,5 @@ export default function CommitSelector({ commits, selectedCommit, onSelectCommit
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }

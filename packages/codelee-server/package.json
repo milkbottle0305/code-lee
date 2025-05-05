@@ -13,6 +13,7 @@
     "prisma:generate:prod": "npx dotenv-cli -e .env.production -- prisma generate",
     "prisma:studio:dev": "npx dotenv-cli -e .env.development -- prisma studio",
     "prisma:studio:prod": "npx dotenv-cli -e .env.production -- prisma studio",
+    "prisma:seed": "npx dotenv-cli -e .env.development -- ts-node prisma/seed.ts",
     "test": "JWT_SECRET=testsecret vitest"
   },
   "dependencies": {
@@ -31,7 +32,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.5",
-    "@types/node": "^20.11.16",
+    "@types/node": "^20.17.32",
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",

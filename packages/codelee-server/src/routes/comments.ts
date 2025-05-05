@@ -19,19 +19,20 @@ const replySchema = z.object({
 export function createCommentsRouter(prisma: PrismaClient) {
   const router = express.Router();
 
+  // 쿼리 파라미터 방식 GET /comments?fileId=...&commitId=...
   /**
    * @swagger
-   * /comments/file/{fileId}/commit/{commitId}:
+   * /comments:
    *   get:
-   *     summary: 특정 파일과 커밋의 댓글 목록 조회
+   *     summary: 특정 파일과 커밋의 댓글 목록 조회 (쿼리 파라미터 방식)
    *     tags: [Comments]
    *     parameters:
-   *       - in: path
+   *       - in: query
    *         name: fileId
    *         required: true
    *         schema:
    *           type: string
-   *       - in: path
+   *       - in: query
    *         name: commitId
    *         required: true
    *         schema:
@@ -39,12 +40,19 @@ export function createCommentsRouter(prisma: PrismaClient) {
    *     responses:
    *       200:
    *         description: 댓글 목록
+   *       400:
+   *         description: 잘못된 요청
    */
-  router.get("/file/:fileId/commit/:commitId", async (req, res) => {
+  router.get("/", async (req, res) => {
+    const { fileId, commitId } = req.query;
+    if (!fileId || !commitId) {
+      return res
+        .status(400)
+        .json({ message: "fileId와 commitId가 필요합니다." });
+    }
     try {
-      const { fileId, commitId } = req.params;
       const comments = await prisma.comment.findMany({
-        where: { fileId, commitId },
+        where: { fileId: String(fileId), commitId: String(commitId) },
         include: {
           author: { select: { id: true, name: true, email: true } },
           replies: {
@@ -58,7 +66,7 @@ export function createCommentsRouter(prisma: PrismaClient) {
       });
       return res.status(200).json(comments);
     } catch (error) {
-      console.error("Get comments error:", error);
+      console.error("Get comments (query) error:", error);
       return res
         .status(500)
         .json({ message: "댓글을 가져오는 중 오류가 발생했습니다." });
