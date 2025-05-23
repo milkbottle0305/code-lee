@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: codelee_dev
+      POSTGRES_USER: codelee-admin
+      POSTGRES_PASSWORD: codelee-password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: .
+      args:
+        NODE_ENV: development
+    command: sh -c "pnpm --filter codelee-server exec prisma migrate deploy && pnpm --filter codelee-server dev"
+    working_dir: /app/packages/codelee-server
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./packages/codelee-server/.env.development
+    environment:
+      DATABASE_URL: postgresql://codelee-admin:codelee-password@db:5432/codelee_dev?schema=public
+      NODE_ENV: development
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      args:
+        NODE_ENV: development
+    command: pnpm --filter codelee-web dev
+    working_dir: /app/packages/codelee-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./packages/codelee-web/.env.development
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+      NODE_ENV: development
+
+volumes:
+  db_data:

@@ -31,25 +31,18 @@ app.use("/api/users", createUsersRouter(prisma));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Health check
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
 // Error handling middleware
-app.use(
-  (
-    err: Error,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error(err.stack);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
-    });
-  }
-);
+app.use((err: Error, _req: express.Request, res: express.Response) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
+});
 
 // Start server
 app.listen(PORT, () => {

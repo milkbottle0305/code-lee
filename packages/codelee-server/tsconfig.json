@@ -24,7 +24,7 @@
     "baseUrl": ".",
     "types": ["node"]
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "src/routes/__tests__", "dist", "src/__tests__"],
   "include": ["./src/**/*.ts"],
   "references": [
     {

@@ -1,9 +1,9 @@
 import { api } from "@/lib/api";
-import type {
-  AuthRegisterRequest,
-  AuthRegisterResponse,
+import {
   AuthLoginRequest,
   AuthLoginResponse,
+  AuthRegisterRequest,
+  AuthRegisterResponse,
 } from "codelee-common/types/api";
 
 export async function register(
